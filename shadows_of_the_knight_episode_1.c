@@ -8,6 +8,25 @@
  * the standard input according to the problem statement.
  **/
 
+// Data
+struct rect_beginning
+{
+    int W;
+    int H;
+} rect_beg;
+
+struct rect_ending
+{
+    int W;
+    int H;
+} rect_end;
+
+struct rectangle
+{
+    struct rect_beginning;
+    struct rect_ending;
+} search_rectangle;
+
 void parseDirection(char batman_position[]);
 int binarySearch(int beginning, int end, char direction);
 
