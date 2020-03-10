@@ -138,26 +138,35 @@ void parse_direction(char bomb_direction[], bool start_of_game, struct rect_begi
             // if it is the first move
             if (start_of_game)
             {
-                // search-rectangle end
-                rect_e->x = 0;
+                // search-rectangle beginning
+                rect_b->x = 0;
             }
-            else if (prev_bat_pos.y - 1 > bat_pos.y + 1)
+            else if (prev_bat_pos.x + 1 < bat_pos.x - 1)
             {
-                // search-rectangle end
-                rect_e->y = prev_bat_pos.y - 1;
+                // search-rectangle beginning
+                rect_b->x = prev_bat_pos.x - 1;
             }
-            // if dir = L
-            //      if N == N_Counter // if it is the first move
-            //
-            // bs_beg = rect_beg.W = 0
-            // bs_end = rect_end.W = x_bat_pos
+
+            // search-rectangle end
+            rect_e->x = bat_pos.x - 1;
             break;
 
             // ama einai Right vres to akrivws Right tetragwno mexri telous
         case 'R':
-            // if dir = R
-            // bs_beg = rect_beg.W = x_bat_pos
-            // bs_end = rect_end.W = W - 1
+            // search-rectangle beginning
+            rect_b->x = bat_pos.x + 1;
+
+            // if it is the first move
+            if (start_of_game)
+            {
+                // search-rectangle end
+                rect_e->x = building.W - 1;
+            }
+            else if (prev_bat_pos.x - 1 > bat_pos.x + 1)
+            {
+                // search-rectangle end
+                rect_e->x = prev_bat_pos.x - 1;
+            }
             break;
 
         default:
