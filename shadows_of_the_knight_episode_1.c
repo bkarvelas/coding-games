@@ -11,14 +11,14 @@
 // Data
 struct rect_beginning
 {
-    int W;
-    int H;
+    int x;
+    int y;
 } rect_beg;
 
 struct rect_ending
 {
-    int W;
-    int H;
+    int x;
+    int y;
 } rect_end;
 
 struct general_building
@@ -27,13 +27,27 @@ struct general_building
     int H;
 } building;
 
-int N_counter;
+struct batman_position
+{
+    int x;
+    int y;
+} bat_pos;
 
-void parse_direction(char batman_position[], struct rect_beginning *rect_b, struct rect_ending *rect_e);
+struct previews_batman_position
+{
+    int x;
+    int y;
+} prev_bat_pos;
+
+// N = maximum number of turns before game over.
+bool start_of_game = true;
+
+void parse_direction(char bomb_direction[], bool start_of_game, struct rect_beginning *rect_b, struct rect_ending *rect_e);
 int binary_search_2d(int beginning, int end, char direction);
 
 int main()
 {
+
     // width, height of the building.
     scanf("%d%d", &building.W, &building.H);
 
@@ -41,11 +55,12 @@ int main()
     int N;
     scanf("%d", &N);
 
-    N_counter = N;
-
     // Batman Position
-    int x_bat_pos, y_bat_pos;
-    scanf("%d%d", &x_bat_pos, &y_bat_pos);
+    scanf("%d%d", &bat_pos.x, &bat_pos.y);
+
+    // initialize previews Batman position with current Batman position
+    prev_bat_pos.x = bat_pos.x;
+    prev_bat_pos.y = bat_pos.y;
 
     // game loop
     while (1)
@@ -54,56 +69,83 @@ int main()
         char bomb_dir[4];
         scanf("%s", bomb_dir);
 
+        parse_direction(bomb_dir, start_of_game, &rect_beg, &rect_end);
+
         // Write an action using printf(). DON'T FORGET THE TRAILING \n
         // To debug: fprintf(stderr, "Debug messages...\n");
         fprintf(stderr, "W: %d | H: %d\n", building.W, building.H);
         fprintf(stderr, "Jumps: %d \n", N);
-        fprintf(stderr, "Batman Location (%d,%d) \n", x_bat_pos, y_bat_pos);
+        fprintf(stderr, "Batman Location (%d,%d) \n", bat_pos.x, bat_pos.y);
         fprintf(stderr, "Bomb Location %s \n", bomb_dir);
 
         // the location of the next window Batman should jump to.
         // printf("3 7\n");
-        N_counter--;
+        start_of_game = false;
     }
 
     return 0;
 }
 
-void parse_direction(char batman_position[], struct rect_beginning *rect_b, struct rect_ending *rect_e)
+void parse_direction(char bomb_direction[], bool start_of_game, struct rect_beginning *rect_b, struct rect_ending *rect_e)
 {
     // y_bat_b, x_bat_b is the begining of the search rectangle area (y_bat_pos + 1, x_bat_pos + 1)
-    int i = 0, y_bat_b = 0, x_bat_b = 0;
-    while (batman_position[i] != '\0')
+    int i = 0;
+    while (bomb_direction[i] != '\0')
     {
         // Initial batman position, direction
 
         // U D L R
-        switch (batman_position[i])
+        switch (bomb_direction[i])
         {
             // ama einai Up vres to akrivws Up tetragwno mexri telous
         case 'U':
+            // if it is the first move
+            if (start_of_game)
+            {
+                // search-rectangle beginning
+                rect_b->y = 0;
+            }
+            else if (prev_bat_pos.y + 1 < bat_pos.y - 1)
+            {
+                // search-rectangle beginning
+                rect_b->y = prev_bat_pos.y + 1;
+            }
 
-            // if dir = U
-            //      if N == N_Counter // if it is the first move
-            //          bs_beg = rect_beg.H = 0
-            //      else
-            //          bs_beg = rect_beg.H = prev_y_bat_pos
-            // bs_end = rect_end.H = y_bat_pos
+            // search-rectangle end
+            rect_e->y = bat_pos.y - 1;
             break;
 
             // ama einai Down vres to akrivws Down tetragwno mexri telous
         case 'D':
-            // if dir = D
-            // bs_beg = rect_beg.H = y_bat_pos
-            //      if N == N_Counter // if it is the first move
-            //          bs_end = rect_beg.H = building.H - 1
-            //      else
-            //          if prev_y_bat_pos > y_bat_pos
-            //              bs_end = rect_beg.H = prev_y_bat_pos
+            // search-rectangle beginning
+            rect_b->y = bat_pos.y + 1;
+
+            // if it is the first move
+            if (start_of_game)
+            {
+                // search-rectangle end
+                rect_e->y = building.H - 1;
+            }
+            else if (prev_bat_pos.y - 1 > bat_pos.y + 1)
+            {
+                // search-rectangle end
+                rect_e->y = prev_bat_pos.y - 1;
+            }
             break;
 
             // ama einai Left vres to akrivws Left tetragwno mexri telous
         case 'L':
+            // if it is the first move
+            if (start_of_game)
+            {
+                // search-rectangle end
+                rect_e->x = 0;
+            }
+            else if (prev_bat_pos.y - 1 > bat_pos.y + 1)
+            {
+                // search-rectangle end
+                rect_e->y = prev_bat_pos.y - 1;
+            }
             // if dir = L
             //      if N == N_Counter // if it is the first move
             //
